@@ -1,0 +1,309 @@
+---
+title: "B2.592_TFM_Análisis de negocio_Eduard Abella Curiel"
+author: "Eduard Abella Curiel"
+date: "26 abril de 2019"
+output: html_document
+---
+
+Este es el repositorio dónde se encuentra el código del Trabajo Final de Máster de Eduard Abella Curiel.
+
+
+__- Se procede a leer el data set, y se guarda en la variable d.Al final del pre-procesado, se guardarán los cambios en la variable x. De esta manera, se dispondrá de la variable d con los datos iniciales.__
+
+```{r}
+library("readxl")
+x<-read_excel("TFM_Telco Churn dataset.xlsx")
+x <- as.data.frame(x)
+d <- x
+```
+
+__- Se obtiene una visión general de los campos que forman el data set.__
+
+```{r}
+head(d)
+summary (d)
+```
+
+__- Se realizan tareas de limpieza de datos:__
+
+```{r}
+## 1. Caracteres a factores.
+
+for (i in 1:ncol(x)) {
+  
+  if(class(x[,i])=="character") {x[,i] <- as.factor(x[,i])}
+  
+}
+
+  x[,3] <- as.factor(x[,3])
+
+## Eliminar filas con missings values.
+  
+  x <- x[complete.cases(x),]
+
+## Eliminar columnas con información igual per a todos los individuos (phone service) y columna CustomerID.
+  
+  x <- x[,-c(1,7)]
+  
+## Pasar de totales a datos mensuales.
+  
+ 
+  for (i in 19:30) {
+    
+    x[,i] <- x[,i]/x[,5]
+  }
+  
+## Cambio de nombres de columnas.
+  
+  names(x)[19:30] <- c("AvgMessages", "AvgDayMinutes", "AvgDayCalls", "AvgEveMinutes", "AvgEveCalls", "AvgNightMinutes", "AvgNightCalls", "AvgIntlMinutes", "AvgIntlCalls", "AvgCsCalls", "AvgCall", "AvgRevenue")
+```
+
+Podemos observar que el % de Yes (%) es considerablemnte inferior al NO (%). Por lo tanto, se puede dar la posibilidad que el algoritmo sobreestimará la categoria mayoritaria, en este caso NO.
+
+
+__- Dependencia entre variables numéricas y Churn:__
+
+```{r}
+##tenure
+t.test(tenure~Churn, data=x)
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable tenure es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+ 
+##AvgMessages
+t.test(AvgMessages~Churn, data=x)
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable AvgMessages es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+ 
+##AvgDayMinutes
+t.test(AvgDayMinutes~Churn, data=x)
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable AvgDayMinutes es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+ 
+##AvgDayCalls
+t.test(AvgDayCalls~Churn, data=x)
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable AvgDayCalls es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+ ##AvgEveMinutes
+t.test(AvgEveMinutes~Churn, data=x)
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable AvgEveMinutes es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+ ##AvgEveCalls
+t.test(AvgEveCalls~Churn, data=x)
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable AvgEveCalls es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+ ##AvgNightMinutes
+t.test(AvgNightMinutes~Churn, data=x)
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable AvgNightMinutes es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+ ##AvgNightCalls
+t.test(AvgNightCalls~Churn, data=x)
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable AvgNightCalls es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+ ##AvgIntlMinutes
+t.test(AvgIntlMinutes~Churn, data=x)
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable AvgIntlMinutes es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+ ##AvgIntlCalls
+t.test(AvgIntlCalls~Churn, data=x)
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable AvgIntlCalls es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+ ##AvgCsCalls
+t.test(AvgCsCalls~Churn, data=x)
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable AvgCsCalls es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+ ##AvgCall
+t.test(AvgCall~Churn, data=x)
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable AvgCall es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+ ##AvgRevenue
+t.test(AvgRevenue~Churn, data=x)
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable AvgRevenue es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+```
+CONCLUSIÓN: no se puede eliminar ninguna columna.
+
+
+__- Dependencia entre variables categóricas y Churn:__
+
+```{r}
+##gender
+table(x$Churn, x$gender)
+chisq.test(table(x$Churn, x$gender))
+## p-value > 0,05, no puedo rechazar la H0, por lo que la variable gender es independiente del churn, por lo que la puedo eliminar de mi análisis.
+
+##SeniorCitizen
+table(x$Churn, x$SeniorCitizen)
+chisq.test(table(x$Churn, x$SeniorCitizen))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable SeniorCitizen es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##MaritalStatus
+table(x$Churn, x$MaritalStatus)
+chisq.test(table(x$Churn, x$MaritalStatus))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable MaritalStatus es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##Dependents
+table(x$Churn, x$Dependents)
+chisq.test(table(x$Churn, x$Dependents))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable Dependents es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##MultipleLines
+table(x$Churn, x$MultipleLines)
+chisq.test(table(x$Churn, x$MultipleLines))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable MultipleLines es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##InternetService
+table(x$Churn, x$InternetService)
+chisq.test(table(x$Churn, x$InternetService))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable InternetService es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##OnlineSecurity
+table(x$Churn, x$OnlineSecurity)
+chisq.test(table(x$Churn, x$OnlineSecurity))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable OnlineSecurity es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##OnlineBackup
+table(x$Churn, x$OnlineBackup)
+chisq.test(table(x$Churn, x$OnlineBackup))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable OnlineBackup es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##DeviceProtection
+table(x$Churn, x$DeviceProtection)
+chisq.test(table(x$Churn, x$DeviceProtection))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable DeviceProtection es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##TechSupport
+table(x$Churn, x$TechSupport)
+chisq.test(table(x$Churn, x$TechSupport))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable TechSupport es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##StreamingTV
+table(x$Churn, x$StreamingTV)
+chisq.test(table(x$Churn, x$StreamingTV))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable StreamingTV es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##StreamingMovies
+table(x$Churn, x$StreamingMovies)
+chisq.test(table(x$Churn, x$StreamingMovies))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable StreamingMovies es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##Contract
+table(x$Churn, x$Contract)
+chisq.test(table(x$Churn, x$Contract))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable Contract es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##PaperlessBilling
+table(x$Churn, x$PaperlessBilling)
+chisq.test(table(x$Churn, x$PaperlessBilling))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable PaperlessBilling es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##PaymentMethod
+table(x$Churn, x$PaymentMethod)
+chisq.test(table(x$Churn, x$PaymentMethod))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable PaymentMethod es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##InternationalPlan
+table(x$Churn, x$InternationalPlan)
+chisq.test(table(x$Churn, x$InternationalPlan))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable InternationalPlan es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+
+##VoiceMailPlan
+table(x$Churn, x$VoiceMailPlan)
+chisq.test(table(x$Churn, x$VoiceMailPlan))
+## Si p-value < 0,05, puedo rechazar la H0, por lo que la variable VoiceMailPlan es dependiente del churn, por lo que NO la puedo eliminar de mi análisis.
+```
+
+CONCLUSIÓN: sólo se puede eliminar la variable Gender.
+
+__- Se procede a eliminar la columna gender y guardar el data set en una variable nueva (m):__
+
+```{r}
+m <- x[,-1]
+```
+
+__CLUSTERIZACIÓN__
+__- Se procede a instalar el paquete "clustMixType".__
+
+```{r}
+install.packages("clustMixType")
+library(clustMixType)
+```
+
+__- En primer lugar, se procede a decidir el número de clústers adecuado para el data set. Por este motivo, se calcula la variabilidad INTRA clústers para diferentes k’s (número de clústers).__
+
+```{r}
+c <- m
+tot.withinss <- numeric(10)
+for (i in 1:10) {
+  set.seed(1)
+kpres <- kproto(c, i)
+tot.withinss[i] <- kpres$tot.withinss
+}
+```
+
+__- Se divide la variabilidad ENTRE clústers (TOTAL – INTRA) entre la variabilidad TOTAL para obtener una medida entre 0 y 1 que indique el porcentaje de la variabilidad TOTAL es variabilidad ENTRE grupos (como más alta mejor).__
+
+```{r}
+prop.withinss <- numeric(10)
+for(i in 1:10) {
+prop.withinss[i] <- ((tot.withinss[1]-tot.withinss[i])/(tot.withinss[1]))
+}
+plot(prop.withinss, type="l", main="Variabilidad intra clústers para diferentes valores de k", ylab="Variabilidad intra clústers", xlab="k")
+```
+
+__- A partir del gráfico anterior, se observa como a partir de k=3 la variabilidad intra se reduce muy lentamente y, por lo tanto, coger un clúster adicional no mejora mucho la diferenciación entre clústers. Entonces, siguiendo la lógica del Elbow Method, se selecciona k=3.__
+
+
+__- Se procede a la clusterización para k=3.__
+```{r}
+set.seed(1)
+kdef <- kproto(c, 3)
+
+## Se añade el clúster a cada cliente a la BBDD
+
+m <- cbind(c, "Cluster"=kdef$cluster)
+
+## Definición de clústers:
+## Para las varibles numéricas:
+tabla_num <- aggregate(cbind(tenure  , AvgMessages , AvgDayMinutes , AvgDayCalls , AvgEveMinutes , AvgEveCalls , AvgNightMinutes , AvgNightCalls , AvgIntlMinutes , AvgIntlCalls , AvgCsCalls , AvgCall , AvgRevenue)~Cluster, data=m ,FUN="mean")
+tabla_num
+
+## Para las varibles categóricas:
+summary(kdef)
+
+```
+__Relfexión: parece que la empresa ha ofrecido un bono o algo por el estilo: la genete lo ha aprovecha y se ha ido__
+
+
+__PREDICCIÓN__
+__- Se procede a instalar el paquete "randomForest".__
+```{r}
+install.packages("randomForest")
+library(randomForest)
+```
+
+__- Se utilizaran un 70% de los datos para el entrenamiento del algoritmo de predicción y el 30% restante para el test.__
+
+```{r}
+set.seed(1)
+train <- sample(1:nrow(m), rep=F, size=round((2/3)*nrow(m)))
+test<- which(!1:3328%in%train)
+
+m.train <- m[train,]
+m.test <- m[test,]
+```
+
+__- Se ejecuta el random Forest y se extrae la matriz de confusión.__
+
+```{r}
+set.seed(11)
+z <- randomForest(Churn ~., data=m.train)
+prediccions <- predict(z,m.test)
+```
+
+__- Se extrae la matriz de confución__
+```{r}
+table(m.test[,30],prediccions)
+```
+
+__Reflexión: Cuando se afirma que un cliente se va, se tiene un 65% de acierto. Cuando realmente se van (según los datos), se tiene un 65/(65+95)% de predecirlo. El algoritmo tiende a asignar individuos a la categoria mayoritaria. Por este motivo, cuando se predice que sí se van se acierte normalemnte. Pero cuando realmente es que sí, no los identificas en muchas ocasiones.__
+__Si el algoritmo ve un perfil de YES muy claro, lo predecirá bien. Pero ante la duda, lo clasificará como No y entonces estará dejando escapar individuos correspondiente a Yes.__
+
+
+
