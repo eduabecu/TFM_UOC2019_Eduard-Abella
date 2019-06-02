@@ -268,7 +268,7 @@ tabla_num
 summary(kdef)
 
 ```
-__Relfexión: parece que la empresa ha ofrecido un bono o algo por el estilo: la genete lo ha aprovecha y se ha ido__
+__Relfexión: parece que la empresa ha ofrecido un bono o algo por el estilo: la gente lo ha aprovechado y se ha ido__
 
 
 __PREDICCIÓN__
