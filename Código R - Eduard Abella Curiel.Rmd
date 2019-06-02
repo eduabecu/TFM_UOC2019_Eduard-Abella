@@ -302,7 +302,7 @@ __- Se extrae la matriz de confución__
 table(m.test[,30],prediccions)
 ```
 
-__Reflexión: Cuando se afirma que un cliente se va, se tiene un 65% de acierto. Cuando realmente se van (según los datos), se tiene un 65/(65+95)% de predecirlo. El algoritmo tiende a asignar individuos a la categoria mayoritaria. Por este motivo, cuando se predice que sí se van se acierte normalemnte. Pero cuando realmente es que sí, no los identificas en muchas ocasiones.__
+__Reflexión: Cuando se afirma que un cliente se va, se tiene un 65% de acierto. Cuando realmente se van (según los datos), se tiene un 65/(65+92)% de predecirlo. El algoritmo tiende a asignar individuos a la categoria mayoritaria. Por este motivo, cuando se predice que sí se van se acierta normalemnte. Pero cuando realmente es que sí, no los identificas en muchas ocasiones.__
 __Si el algoritmo ve un perfil de YES muy claro, lo predecirá bien. Pero ante la duda, lo clasificará como No y entonces estará dejando escapar individuos correspondiente a Yes.__
 
 
